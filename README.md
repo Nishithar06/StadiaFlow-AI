@@ -1,4 +1,4 @@
-# StadiaFlow AI 🏟️
+# StadiaFlow AI 
 
 Smart Stadium Assistant for FIFA World Cup 2026.
 
