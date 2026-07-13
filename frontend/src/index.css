@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+/* Custom theme configurations for Tailwind CSS v4 */
+@theme {
+  --color-brand-primary: #10B981;
+  --color-brand-secondary: #F59E0B;
+  --color-brand-accent: #3B82F6;
+  
+  --color-stadium-dark: #090D1A;
+  --color-stadium-card: rgba(15, 23, 42, 0.65);
+  --color-stadium-card-hover: rgba(30, 41, 59, 0.8);
+  --color-stadium-border: rgba(255, 255, 255, 0.08);
+}
+
+body {
+  background-color: var(--color-stadium-dark);
+  color: #F3F4F6;
+  font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+/* Glassmorphism style utility classes */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-nav {
+  background: rgba(9, 13, 26, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-card {
+  background: rgba(30, 41, 59, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(16, 185, 129, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.1),
+              0 8px 10px -6px rgba(16, 185, 129, 0.05);
+}
+
+/* Soft glow effects */
+.glow-primary {
+  box-shadow: 0 0 50px -10px rgba(16, 185, 129, 0.2);
+}
+
+.glow-secondary {
+  box-shadow: 0 0 50px -10px rgba(245, 158, 11, 0.15);
+}
+
+/* Custom scrollbar for modern browsers */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #090D1A;
+}
+::-webkit-scrollbar-thumb {
+  background: #1E293B;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}

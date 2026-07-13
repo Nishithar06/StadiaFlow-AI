@@ -1,0 +1,50 @@
+{
+  "checkpoints": [
+    {
+      "id": "gate-1",
+      "name": "Gate A (North Entrance)",
+      "status": "normal",
+      "wait_time_minutes": 8,
+      "density_level": "medium",
+      "flow_rate_per_min": 32,
+      "current_queue_size": 250
+    },
+    {
+      "id": "gate-2",
+      "name": "Gate B (East Entrance)",
+      "status": "congested",
+      "wait_time_minutes": 22,
+      "density_level": "high",
+      "flow_rate_per_min": 18,
+      "current_queue_size": 750
+    },
+    {
+      "id": "gate-3",
+      "name": "Gate C (South Entrance)",
+      "status": "normal",
+      "wait_time_minutes": 4,
+      "density_level": "low",
+      "flow_rate_per_min": 40,
+      "current_queue_size": 80
+    },
+    {
+      "id": "concession-1",
+      "name": "Vanguard Stadium Burgers Queue",
+      "status": "congested",
+      "wait_time_minutes": 15,
+      "density_level": "high",
+      "flow_rate_per_min": 8,
+      "current_queue_size": 120
+    },
+    {
+      "id": "concession-2",
+      "name": "Taco Goal Queue",
+      "status": "normal",
+      "wait_time_minutes": 5,
+      "density_level": "low",
+      "flow_rate_per_min": 15,
+      "current_queue_size": 30
+    }
+  ],
+  "last_updated": "2026-07-13T19:05:00Z"
+}

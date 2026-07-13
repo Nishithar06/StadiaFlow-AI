@@ -1,0 +1,66 @@
+[
+  {
+    "id": "gate-1",
+    "name": "Gate A (North Entrance)",
+    "type": "gate",
+    "section": "101",
+    "description": "Main entrance from North Parking lot. High accessibility.",
+    "amenities": ["Ticket Office", "Security Checkpoint"]
+  },
+  {
+    "id": "gate-2",
+    "name": "Gate B (East Entrance)",
+    "type": "gate",
+    "section": "115",
+    "description": "Entrance adjacent to transit station. Highest flow rate.",
+    "amenities": ["Bag Drop", "Security Checkpoint"]
+  },
+  {
+    "id": "gate-3",
+    "name": "Gate C (South Entrance)",
+    "type": "gate",
+    "section": "128",
+    "description": "Entrance from South VIP parking.",
+    "amenities": ["VIP check-in", "Security Checkpoint"]
+  },
+  {
+    "id": "concession-1",
+    "name": "Vanguard Stadium Burgers",
+    "type": "concession",
+    "section": "108",
+    "description": "Gourmet burgers, fries, and drafts.",
+    "amenities": ["Mobile Ordering", "Card Only"]
+  },
+  {
+    "id": "concession-2",
+    "name": "Taco Goal",
+    "type": "concession",
+    "section": "124",
+    "description": "Authentic street tacos, nachos, and soft drinks.",
+    "amenities": ["Cash & Card Accepted"]
+  },
+  {
+    "id": "restroom-1",
+    "name": "Level 1 Restrooms (North)",
+    "type": "restroom",
+    "section": "105",
+    "description": "Male, female, and gender-neutral facilities.",
+    "amenities": ["Baby Changing Station", "Accessible"]
+  },
+  {
+    "id": "restroom-2",
+    "name": "Level 1 Restrooms (South)",
+    "type": "restroom",
+    "section": "126",
+    "description": "Male, female, and family restrooms.",
+    "amenities": ["Accessible"]
+  },
+  {
+    "id": "first-aid-1",
+    "name": "Main First Aid Station",
+    "type": "first_aid",
+    "section": "112",
+    "description": "Fully staffed medical bay for emergency care.",
+    "amenities": ["Defibrillator", "Triage Room", "Ambulance Bay Access"]
+  }
+]
