@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     
     # Comma-separated list in env: "http://localhost:5173,http://127.0.0.1:5173"
-    ALLOWED_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173"
+    ALLOWED_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173,https://stadia-flow-9kc0h8iy9-stadiaflow.vercel.app"
     
     GEMINI_API_KEY: str = "mock_key_for_now"
     GEMINI_MODEL_NAME: str = "gemini-1.5-flash"
