@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.endpoints import gemini, stadium, chat
+from app.api.endpoints import gemini, stadium, chat, dashboard, navigation
 
 app = FastAPI(
-    title="StadiumPilot AI Backend",
+    title="StadiaFlow AI Backend",
     description="Smart Stadium Assistant API for FIFA World Cup 2026",
     version="1.0.0",
 )
@@ -22,13 +22,15 @@ app.add_middleware(
 app.include_router(gemini.router, prefix="/api/v1/gemini", tags=["Gemini AI Assistant"])
 app.include_router(stadium.router, prefix="/api/v1", tags=["Stadium & Crowd Live Data"])
 app.include_router(chat.router, prefix="/api", tags=["AI Assistant Core"])
+app.include_router(dashboard.router, prefix="/api", tags=["Operations Dashboard"])
+app.include_router(navigation.router, prefix="/api", tags=["Stadium Interactive Navigation"])
 
 
 @app.get("/api/health")
 def api_health():
     return {
         "status": "online",
-        "service": "StadiumPilot AI Backend",
+        "service": "StadiaFlow AI Backend",
         "version": "1.0"
     }
 
@@ -36,7 +38,7 @@ def api_health():
 @app.get("/")
 def read_root():
     return {
-        "message": "Welcome to StadiumPilot AI API",
+        "message": "Welcome to StadiaFlow AI API",
         "docs_url": "/docs",
         "version": "1.0.0"
     }

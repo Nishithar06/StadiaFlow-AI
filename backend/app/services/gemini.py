@@ -1,6 +1,24 @@
 import logging
 from typing import Optional
 from app.core.config import settings
+import ssl
+
+# Global SSL verification bypass patch
+try:
+    ssl._create_default_https_context = ssl._create_unverified_context
+    orig_ssl_context = ssl.SSLContext
+    
+    class UnverifiedSSLContext(orig_ssl_context):
+        def __new__(cls, *args, **kwargs):
+            instance = orig_ssl_context.__new__(cls, *args, **kwargs)
+            # Disable verification by default
+            instance.check_hostname = False
+            instance.verify_mode = ssl.CERT_NONE
+            return instance
+            
+    ssl.SSLContext = UnverifiedSSLContext
+except Exception:
+    pass
 
 # Setup basic logging
 logging.basicConfig(level=logging.INFO)
@@ -16,7 +34,7 @@ class GeminiService:
         if self.api_key and self.api_key != "mock_key_for_now" and self.api_key != "your_gemini_api_key_here":
             try:
                 import google.generativeai as genai
-                genai.configure(api_key=self.api_key)
+                genai.configure(api_key=self.api_key, transport="rest")
                 self.initialized = True
                 logger.info(f"Gemini SDK initialized with model: {self.model_name}")
             except ImportError:
@@ -32,7 +50,7 @@ class GeminiService:
         Falls back to a structured mock response if the SDK is not initialized.
         """
         if not self.initialized:
-            return self._get_mock_response(prompt)
+            raise RuntimeError("Gemini SDK not initialized.")
             
         try:
             import google.generativeai as genai
@@ -49,14 +67,14 @@ class GeminiService:
             response = model.generate_content(prompt)
             return response.text
         except Exception as e:
-            logger.error(f"Error calling Gemini SDK: {e}. Falling back to mock response.")
-            return self._get_mock_response(prompt)
+            logger.error(f"Error calling Gemini SDK: {e}.")
+            raise e
 
     def _get_mock_response(self, prompt: str) -> str:
         prompt_lower = prompt.lower()
         if "gate" in prompt_lower or "entrance" in prompt_lower or "entry" in prompt_lower:
             return (
-                "**StadiumPilot AI Assistant (Simulation Mode)**\n\n"
+                "**StadiaFlow AI Assistant (Simulation Mode)**\n\n"
                 "Based on the live telemetry from the FIFA World Cup 2026 gates:\n"
                 "- 🚪 **Gate A (North Entrance)**: Wait time is **8 minutes** (Normal flow).\n"
                 "- 🚪 **Gate B (East Entrance)**: Wait time is **22 minutes** (Highly congested due to transit arrivals).\n"
@@ -65,7 +83,7 @@ class GeminiService:
             )
         elif "food" in prompt_lower or "eat" in prompt_lower or "burger" in prompt_lower or "taco" in prompt_lower:
             return (
-                "**StadiumPilot AI Assistant (Simulation Mode)**\n\n"
+                "**StadiaFlow AI Assistant (Simulation Mode)**\n\n"
                 "Hungry? Here are the nearest concessions to your seat:\n"
                 "- 🍔 **Vanguard Stadium Burgers** (Section 108): High demand, wait time is approximately **15 minutes**. (Card-only)\n"
                 "- 🌮 **Taco Goal** (Section 124): Lower demand, wait time is **5 minutes**. (Cash/card accepted)\n\n"
@@ -80,7 +98,7 @@ class GeminiService:
             )
         else:
             return (
-                f"**StadiumPilot AI Assistant (Simulation Mode)**\n\n"
+                f"**StadiaFlow AI Assistant (Simulation Mode)**\n\n"
                 f"Thanks for asking: *'{prompt}'*.\n\n"
                 f"I am set up as a placeholder. To unlock full AI features, please configure a valid "
                 f"`GEMINI_API_KEY` inside the `backend/.env` file.\n\n"

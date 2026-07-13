@@ -1,2 +1,2 @@
 # endpoints package init
-from app.api.endpoints import gemini, stadium, chat
+from app.api.endpoints import gemini, stadium, chat, dashboard, navigation

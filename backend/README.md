@@ -1,6 +1,6 @@
-# StadiumPilot AI - Backend ⚙️
+# StadiaFlow AI - Backend ⚙️
 
-FastAPI backend server for the StadiumPilot AI application.
+FastAPI backend server for the StadiaFlow AI application.
 
 ---
 

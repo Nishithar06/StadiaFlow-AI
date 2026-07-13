@@ -4,6 +4,8 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import LandingPage from './pages/LandingPage';
 import Chat from './pages/Chat';
+import Dashboard from './pages/Dashboard';
+import Navigation from './pages/Navigation';
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/chat" element={<Chat />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/navigation" element={<Navigation />} />
           </Routes>
         </div>
 

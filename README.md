@@ -1,8 +1,8 @@
-# StadiumPilot AI 🏟️
+# StadiaFlow AI 🏟️
 
 Smart Stadium Assistant for FIFA World Cup 2026.
 
-StadiumPilot AI is a production-ready, modular full-stack application designed to enhance fan experience, manage stadium crowds, and facilitate emergency response handling during the FIFA World Cup 2026.
+StadiaFlow AI is a production-ready, modular full-stack application designed to enhance fan experience, manage stadium crowds, and facilitate emergency response handling during the FIFA World Cup 2026.
 
 ---
 

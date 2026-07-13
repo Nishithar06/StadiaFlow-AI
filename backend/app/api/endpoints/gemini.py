@@ -28,13 +28,13 @@ def get_system_prompt() -> str:
                 return f.read()
     except Exception:
         pass
-    return "You are StadiumPilot AI, a FIFA World Cup 2026 stadium assistant."
+    return "You are StadiaFlow AI, a FIFA World Cup 2026 stadium assistant."
 
 
 @router.post("/chat", response_model=ChatResponse)
 async def chat_with_assistant(request: ChatRequest):
     """
-    Primary endpoint for chatting with the StadiumPilot AI assistant.
+    Primary endpoint for chatting with the StadiaFlow AI assistant.
     Reads customized prompts from docs/prompts.md.
     """
     if not request.message.strip():

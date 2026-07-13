@@ -1,6 +1,6 @@
-# StadiumPilot AI - Frontend 🏟️
+# StadiaFlow AI - Frontend 🏟️
 
-High-fidelity React Single Page Application for StadiumPilot AI, optimized for FIFA World Cup 2026 stadium navigation and operations.
+High-fidelity React Single Page Application for StadiaFlow AI, optimized for FIFA World Cup 2026 stadium navigation and operations.
 
 ---
 

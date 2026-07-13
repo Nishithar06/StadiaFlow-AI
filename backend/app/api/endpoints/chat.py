@@ -51,7 +51,7 @@ def load_system_instruction() -> str:
     file_path = os.path.join(current_dir, "docs", "prompts.md")
     
     if not os.path.exists(file_path):
-        return "You are StadiumPilot AI, the official intelligent stadium assistant for the FIFA World Cup 2026."
+        return "You are StadiaFlow AI, the official intelligent stadium assistant for the FIFA World Cup 2026."
         
     try:
         with open(file_path, "r", encoding="utf-8") as f:
@@ -59,8 +59,7 @@ def load_system_instruction() -> str:
             # Simple extraction of the system prompt section if needed
             return content
     except Exception as e:
-        logger.error(f"Error loading prompts.md instructions: {e}")
-        return "You are StadiumPilot AI, the official intelligent stadium assistant for the FIFA World Cup 2026."
+        return "You are StadiaFlow AI, the official intelligent stadium assistant for the FIFA World Cup 2026."
 
 
 def construct_simulation_reply(matches: list, query: str) -> str:
@@ -136,41 +135,43 @@ async def chat(request: ChatRequest):
         stadium_locations = load_stadium_data()
         
         if has_gemini_key:
-            logger.info("Routing query to Gemini AI SDK.")
-            system_instruction = load_system_instruction()
-            
-            # Format system instruction with active JSON locations context
-            stadium_info_str = json.dumps(stadium_locations, indent=2)
-            contextual_instruction = (
-                f"{system_instruction}\n\n"
-                f"### CURRENT LIVE STADIUM Telemetry Context:\n"
-                f"{stadium_info_str}"
-            )
-            
-            reply_text = await gemini_service.generate_response(
-                prompt=query,
-                system_instruction=contextual_instruction
-            )
-            
-            return ChatResponse(
-                reply=reply_text,
-                source="gemini",
-                timestamp=timestamp_str,
-                confidence=1.0
-            )
-        else:
-            logger.info("Gemini API key unavailable. Routing to Semantic Simulation Engine.")
-            
-            # Run semantic match
-            matches, confidence_score = semantic_search(query, stadium_locations)
-            reply_text = construct_simulation_reply(matches, query)
-            
-            return ChatResponse(
-                reply=reply_text,
-                source="simulation",
-                timestamp=timestamp_str,
-                confidence=confidence_score
-            )
+            try:
+                logger.info("Routing query to Gemini AI SDK.")
+                system_instruction = load_system_instruction()
+                
+                # Format system instruction with active JSON locations context
+                stadium_info_str = json.dumps(stadium_locations, indent=2)
+                contextual_instruction = (
+                    f"{system_instruction}\n\n"
+                    f"### CURRENT LIVE STADIUM Telemetry Context:\n"
+                    f"{stadium_info_str}"
+                )
+                
+                reply_text = await gemini_service.generate_response(
+                    prompt=query,
+                    system_instruction=contextual_instruction
+                )
+                
+                return ChatResponse(
+                    reply=reply_text,
+                    source="gemini",
+                    timestamp=timestamp_str,
+                    confidence=1.0
+                )
+            except Exception as e:
+                logger.error(f"Gemini API execution failed: {e}. Falling back to simulation.")
+        
+        # Fallback to simulation mode if key is missing or API failed
+        logger.info("Routing to Semantic Simulation Engine.")
+        matches, confidence_score = semantic_search(query, stadium_locations)
+        reply_text = construct_simulation_reply(matches, query)
+        
+        return ChatResponse(
+            reply=reply_text,
+            source="simulation",
+            timestamp=timestamp_str,
+            confidence=confidence_score
+        )
             
     except Exception as e:
         logger.error(f"Error occurred in chat resolution: {str(e)}", exc_info=True)

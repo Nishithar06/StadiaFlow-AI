@@ -6,7 +6,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 const getBaseOrigin = (url) => {
   try {
     return new URL(url).origin;
-  } catch (e) {
+  } catch {
     return 'http://localhost:8000';
   }
 };
@@ -31,6 +31,12 @@ apiClient.interceptors.response.use(
 export const api = {
   // System Health
   getHealth: () => axios.get(`${BASE_ORIGIN}/api/health`).then(res => res.data),
+
+  // Interactive Stadium Navigation (Feature 3)
+  getNavigation: () => axios.get(`${BASE_ORIGIN}/api/navigation`).then(res => res.data),
+
+  // Smart Operations Dashboard (Feature 2)
+  getDashboard: () => axios.get(`${BASE_ORIGIN}/api/dashboard`).then(res => res.data),
 
   // Modular AI Assistant endpoint (Feature 1)
   postChat: (message) => axios.post(`${BASE_ORIGIN}/api/chat`, { message }).then(res => res.data),

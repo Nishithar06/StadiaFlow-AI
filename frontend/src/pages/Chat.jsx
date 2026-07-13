@@ -4,13 +4,13 @@ import {
   Send, Trash2, Sparkles, MessageSquare, Compass, ShieldAlert, 
   ArrowLeft, CheckCircle2, AlertCircle, RefreshCw, Cpu
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 export default function Chat() {
   const [messages, setMessages] = useState([
     { 
       role: 'assistant', 
-      text: "Hi! I'm StadiumPilot AI. Ask me anything about the stadium.",
+      text: "Hi! I'm StadiaFlow AI. Ask me anything about the stadium.",
       source: 'system',
       confidence: 1.0,
       timestamp: new Date().toISOString()
@@ -22,6 +22,7 @@ export default function Chat() {
   const [backendHealthy, setBackendHealthy] = useState(false);
 
   const messagesEndRef = useRef(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Suggested prompt definitions
   const SUGGESTED_PROMPTS = [
@@ -46,12 +47,13 @@ export default function Chat() {
     try {
       await api.getHealth();
       setBackendHealthy(true);
-    } catch (err) {
+    } catch {
       setBackendHealthy(false);
     }
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     checkStatus();
   }, []);
 
@@ -95,6 +97,17 @@ export default function Chat() {
     }
   };
 
+  useEffect(() => {
+    const initialQuery = searchParams.get('query');
+    if (initialQuery) {
+      // Clear parameter so page reloads don't loop/re-trigger
+      searchParams.delete('query');
+      setSearchParams(searchParams);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      handleSend(initialQuery);
+    }
+  }, [searchParams, setSearchParams]);
+
   const handleFormSubmit = (e) => {
     e.preventDefault();
     handleSend(input);
@@ -104,7 +117,7 @@ export default function Chat() {
     setMessages([
       { 
         role: 'assistant', 
-        text: "Hi! I'm StadiumPilot AI. Ask me anything about the stadium.",
+        text: "Hi! I'm StadiaFlow AI. Ask me anything about the stadium.",
         source: 'system',
         confidence: 1.0,
         timestamp: new Date().toISOString()
@@ -114,40 +127,40 @@ export default function Chat() {
   };
 
   return (
-    <div className="h-[calc(100vh-73px)] flex overflow-hidden bg-stadium-dark relative">
+    <div className="h-[calc(100vh-73px)] flex overflow-hidden bg-white relative">
       
-      {/* 1. Sidebar Panel (Hidden on Mobile, visible on Desktop) */}
-      <aside className="hidden md:flex flex-col w-72 glass-panel border-r border-stadium-border p-6 flex-shrink-0 justify-between">
+      {/* 1. Sidebar Panel - Light Workspace style */}
+      <aside className="hidden md:flex flex-col w-72 bg-[#F8F9FA] border-r border-stadium-border p-6 flex-shrink-0 justify-between">
         <div className="space-y-8">
-          {/* Back Home Link */}
+          {/* Back Link */}
           <Link 
             to="/" 
-            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+            <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
           </Link>
 
-          {/* Assistant Info */}
-          <div className="space-y-3">
+          {/* Title info */}
+          <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <span className="text-2xl">🏟️</span>
-              <h2 className="text-lg font-black tracking-tight text-white">StadiumPilot AI</h2>
+              <span className="text-xl">🏟️</span>
+              <h2 className="text-base font-bold tracking-tight text-slate-800">StadiaFlow AI</h2>
             </div>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Active assistant for the FIFA World Cup 2026 matches. Employs Gemini models or semantic telemetry lookup.
+            <p className="text-xs text-slate-500 leading-relaxed">
+              FIFA World Cup 2026 support workspace. Leverages Gemini context instruction libraries.
             </p>
           </div>
 
-          {/* Quick Actions / Tips */}
+          {/* Quick Prompts */}
           <div className="space-y-4">
-            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Suggested Questions</h3>
+            <h3 className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Suggested Queries</h3>
             <div className="flex flex-col gap-2">
               {SUGGESTED_PROMPTS.map((prompt, i) => (
                 <button
                   key={i}
                   onClick={() => handleSend(prompt.label)}
                   disabled={loading}
-                  className="w-full text-left px-3.5 py-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-white/5 hover:border-brand-primary/20 text-xs font-medium text-slate-300 hover:text-white transition-all duration-200"
+                  className="w-full text-left px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-brand-primary/30 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-all duration-150 shadow-sm"
                 >
                   <span className="mr-2">{prompt.icon}</span>
                   {prompt.label}
@@ -160,34 +173,32 @@ export default function Chat() {
         {/* Clear Chat CTA */}
         <button
           onClick={clearChat}
-          className="w-full py-3 rounded-xl border border-white/10 hover:border-rose-500/30 hover:bg-rose-500/5 text-slate-400 hover:text-rose-400 text-xs font-semibold flex items-center justify-center gap-2 transition-all active:scale-95"
+          className="w-full py-3 rounded-lg border border-slate-200 hover:border-red-200 hover:bg-red-50/30 text-slate-500 hover:text-rose-600 text-xs font-bold flex items-center justify-center gap-2 transition-all active:scale-98"
         >
-          <Trash2 className="w-4 h-4" /> Clear Conversation
+          <Trash2 className="w-4 h-4" /> Clear Chat Session
         </button>
       </aside>
 
-      {/* 2. Main Chat Area */}
-      <section className="flex-1 flex flex-col h-full bg-slate-950/20">
+      {/* 2. Main Chat Panel */}
+      <section className="flex-1 flex flex-col h-full bg-[#FAF9F6]/20">
         
-        {/* Chat Status Bar */}
-        <header className="px-6 py-3.5 border-b border-stadium-border flex items-center justify-between text-xs glass-panel-light z-10">
+        {/* Status Bar Header */}
+        <header className="px-6 py-3.5 border-b border-stadium-border bg-white flex items-center justify-between text-xs z-10 shadow-sm">
           <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-brand-primary animate-pulse"></div>
-            <span className="font-bold text-white tracking-wide uppercase">Gemini Orchestrated Assistant</span>
+            <div className="w-2 h-2 rounded-full bg-brand-primary"></div>
+            <span className="font-bold text-slate-700 tracking-wide uppercase">AI Assistant console</span>
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Status indicator */}
             <div className="flex items-center gap-1.5">
               <span className={`w-2 h-2 rounded-full ${backendHealthy ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
-              <span className="text-[10px] font-semibold text-slate-400">
+              <span className="text-[10px] font-bold text-slate-500">
                 {backendHealthy ? 'Backend Connected' : 'Backend Offline'}
               </span>
             </div>
-            {/* Clear conversation for mobile only */}
             <button 
               onClick={clearChat}
-              className="md:hidden text-slate-400 hover:text-rose-400 p-1 transition-colors"
+              className="md:hidden text-slate-400 hover:text-rose-600 p-1 transition-colors"
               title="Clear Chat"
             >
               <Trash2 className="w-4 h-4" />
@@ -202,32 +213,31 @@ export default function Chat() {
             {messages.map((msg, i) => (
               <div 
                 key={i} 
-                className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-200`}
+                className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-1 duration-150`}
               >
-                {/* Assistant Avatar */}
                 {msg.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-brand-primary/20 flex items-center justify-center flex-shrink-0 text-brand-primary font-bold text-sm">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center flex-shrink-0 text-brand-secondary font-bold text-xs shadow-sm">
                     🤖
                   </div>
                 )}
 
                 <div className="flex flex-col gap-1.5 max-w-[85%] sm:max-w-[75%]">
-                  {/* Bubble content */}
-                  <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm whitespace-pre-line ${
+                  {/* message bubble */}
+                  <div className={`p-4 rounded-xl text-xs leading-relaxed shadow-sm whitespace-pre-line border ${
                     msg.role === 'user'
-                      ? 'bg-brand-primary text-slate-950 font-medium rounded-tr-none'
-                      : 'bg-slate-900/90 border border-white/5 text-slate-200 rounded-tl-none'
+                      ? 'bg-blue-50 text-slate-800 border-blue-100 rounded-tr-none font-medium'
+                      : 'bg-white border-slate-200 text-slate-800 rounded-tl-none'
                   }`}>
-                    {msg.text}
+                    {msg.text ? msg.text.replace(/\*\*/g, '').replace(/\*/g, '') : ''}
                   </div>
 
-                  {/* Metadata & Routing Badges */}
+                  {/* badges details */}
                   {msg.role === 'assistant' && msg.source && msg.source !== 'system' && (
-                    <div className="flex items-center gap-2 px-1 text-[10px] text-slate-500">
+                    <div className="flex items-center gap-2 px-1 text-[9px] text-slate-400 font-semibold uppercase">
                       <span className="flex items-center gap-1">
-                        <Cpu className="w-3.5 h-3.5 text-slate-400" />
+                        <Cpu className="w-3 h-3 text-slate-400" />
                         Source: 
-                        <span className={`font-semibold capitalize ${msg.source === 'gemini' ? 'text-blue-400' : 'text-amber-400'}`}>
+                        <span className={`font-bold capitalize ${msg.source === 'gemini' ? 'text-blue-600' : 'text-amber-600'}`}>
                           {msg.source}
                         </span>
                       </span>
@@ -237,25 +247,24 @@ export default function Chat() {
                   )}
                 </div>
 
-                {/* User Avatar */}
                 {msg.role === 'user' && (
-                  <div className="w-8 h-8 rounded-lg bg-brand-primary/10 border border-brand-primary/30 flex items-center justify-center flex-shrink-0 text-brand-primary font-bold text-sm">
+                  <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0 text-brand-primary font-bold text-xs shadow-sm">
                     👤
                   </div>
                 )}
               </div>
             ))}
 
-            {/* Simulated typing animation */}
+            {/* Pulsing Loading Indicators */}
             {loading && (
               <div className="flex gap-4 justify-start">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-brand-primary font-bold text-sm">
+                <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center text-brand-secondary font-bold text-xs shadow-sm">
                   🤖
                 </div>
-                <div className="bg-slate-900/90 border border-white/5 rounded-2xl rounded-tl-none px-4 py-3 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-brand-primary/70 animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                  <span className="w-2 h-2 rounded-full bg-brand-primary/70 animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                  <span className="w-2 h-2 rounded-full bg-brand-primary/70 animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                <div className="bg-white border border-slate-200 rounded-xl rounded-tl-none px-4 py-3 flex items-center gap-1.5 shadow-sm">
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-primary/60 animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-primary/60 animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-primary/60 animate-bounce" style={{ animationDelay: '300ms' }}></span>
                 </div>
               </div>
             )}
@@ -264,14 +273,14 @@ export default function Chat() {
           </div>
         </div>
 
-        {/* Suggested prompts on Mobile (Horizontal scroll) */}
+        {/* Mobile prompt lists */}
         <div className="md:hidden flex gap-2 overflow-x-auto px-6 pb-2.5 max-w-full scrollbar-none">
           {SUGGESTED_PROMPTS.map((prompt, i) => (
             <button
               key={i}
               onClick={() => handleSend(prompt.label)}
               disabled={loading}
-              className="flex-shrink-0 px-4 py-2.5 rounded-xl bg-slate-900/70 hover:bg-slate-800 border border-white/5 text-xs font-semibold text-slate-300 flex items-center gap-1.5"
+              className="flex-shrink-0 px-3.5 py-2 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-600 flex items-center gap-1.5 shadow-sm"
             >
               <span>{prompt.icon}</span>
               {prompt.label}
@@ -279,11 +288,11 @@ export default function Chat() {
           ))}
         </div>
 
-        {/* Input container */}
-        <div className="p-4 sm:p-6 border-t border-stadium-border bg-slate-950/30">
+        {/* Text Input area */}
+        <div className="p-4 sm:p-6 border-t border-stadium-border bg-white shadow-md">
           <div className="max-w-3xl mx-auto space-y-3">
             {errorMsg && (
-              <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/25 text-rose-400 text-xs flex items-center gap-2 animate-in fade-in duration-200">
+              <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-1.5 font-semibold animate-in fade-in duration-150">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 {errorMsg}
               </div>
@@ -294,21 +303,21 @@ export default function Chat() {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about gates, food, restrooms, or simulate emergencies..."
+                placeholder="Ask about gates, concessions, seating, or try typing 'emergency'..."
                 disabled={loading}
-                className="flex-1 bg-slate-900/70 border border-stadium-border hover:border-white/10 focus:border-brand-primary rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none transition-colors disabled:opacity-50"
+                className="flex-1 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-brand-primary rounded-lg px-4 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white transition-colors disabled:opacity-50"
               />
               <button
                 type="submit"
                 disabled={loading || !input.trim()}
-                className="px-5 rounded-xl bg-brand-primary hover:bg-emerald-400 text-slate-950 flex items-center justify-center font-bold text-sm gap-2 transition-all duration-200 active:scale-95 disabled:opacity-40"
+                className="px-4 rounded-lg bg-brand-primary hover:bg-blue-600 text-white flex items-center justify-center font-bold text-xs gap-1.5 transition-all active:scale-98 disabled:opacity-40 shadow-sm"
               >
-                <Send className="w-4 h-4" />
+                <Send className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Send</span>
               </button>
             </form>
-            <p className="text-[10px] text-center text-slate-500">
-              StadiumPilot AI World Cup assistant. Direct queries are mapped semantically against telemetry directories.
+            <p className="text-[9px] text-center text-slate-400 font-semibold">
+              StadiaFlow command telemetry indexing. AI responses are generated using Gemini system directives.
             </p>
           </div>
         </div>

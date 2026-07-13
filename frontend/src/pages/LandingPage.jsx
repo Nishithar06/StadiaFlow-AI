@@ -4,15 +4,15 @@ import {
   MessageSquare, Compass, ShieldAlert, Sparkles, Send, 
   RefreshCw, AlertTriangle, AlertCircle, CheckCircle, Clock, Users, ArrowRight 
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function LandingPage() {
   // System states
   const [backendHealthy, setBackendHealthy] = useState(false);
-  const [loading, setLoading] = useState(true);
 
   // AI Assistant States
   const [messages, setMessages] = useState([
-    { role: 'assistant', text: 'Hi! I am StadiumPilot AI. Ask me about gates, seating, concessions, or try typing "emergency" to see the safety fallback.' }
+    { role: 'assistant', text: "Hi! I am StadiaFlow AI. Ask me about gates, seating, concessions, or try typing 'emergency' to see the safety fallback." }
   ]);
   const [userInput, setUserInput] = useState('');
   const [sendingChat, setSendingChat] = useState(false);
@@ -36,7 +36,7 @@ export default function LandingPage() {
   // Initial Fetches
   const fetchTelemetry = async () => {
     try {
-      const health = await api.getHealth();
+      await api.getHealth();
       setBackendHealthy(true);
 
       const crowdData = await api.getCrowdStatus();
@@ -48,9 +48,8 @@ export default function LandingPage() {
       const locationData = await api.getLocations();
       setLocations(locationData || []);
     } catch (err) {
-      console.warn('Backend server is not running or unreachable. Running in local demo fallback mode.', err);
+      console.warn('Backend server offline. Running in local demo fallback mode.', err);
       setBackendHealthy(false);
-      // Fallback local mock data so the landing page works even if backend is offline
       setCheckpoints([
         { id: 'gate-1', name: 'Gate A (North Entrance)', status: 'normal', wait_time_minutes: 8, density_level: 'medium', flow_rate_per_min: 32, current_queue_size: 250 },
         { id: 'gate-2', name: 'Gate B (East Entrance)', status: 'congested', wait_time_minutes: 22, density_level: 'high', flow_rate_per_min: 18, current_queue_size: 750 },
@@ -65,16 +64,15 @@ export default function LandingPage() {
         { id: 'concession-1', name: 'Vanguard Stadium Burgers', type: 'concession', section: '108', description: 'Gourmet burgers.', amenities: ['Mobile Ordering'] },
         { id: 'first-aid-1', name: 'Main First Aid Station', type: 'first_aid', section: '112', description: 'Staffed medical bay.', amenities: ['Defibrillator'] }
       ]);
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchTelemetry();
   }, []);
 
-  // Send message to Gemini Endpoint
+  // Send message to Gemini Endpoint (Feature 1 chat API)
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!userInput.trim()) return;
@@ -87,23 +85,22 @@ export default function LandingPage() {
     try {
       let reply;
       if (backendHealthy) {
-        const result = await api.postChatMessage(userMsg);
-        reply = result.response;
+        const result = await api.postChat(userMsg);
+        reply = result.reply;
       } else {
-        // Mock Response simulation if backend is not running
-        await new Promise(resolve => setTimeout(resolve, 800));
+        await new Promise(resolve => setTimeout(resolve, 850));
         const promptLower = userMsg.toLowerCase();
         if (promptLower.includes('gate') || promptLower.includes('entrance')) {
-          reply = "*(Local Offline Fallback)* **StadiumPilot AI**: Gate A (North) has a 8 min wait; Gate B (East) is congested (22 min wait). Gate C (South) is clear (4 min wait). We recommend Gate C!";
+          reply = "*(Offline Simulation)* Gate B (East Entrance) is congested with a 22-minute wait. Gates A (North) and C (South) are operating normally with wait times of 8 and 4 minutes respectively.";
         } else if (promptLower.includes('emergency') || promptLower.includes('hurt') || promptLower.includes('accident')) {
-          reply = "⚠️ *(Local Offline Fallback)* **EMERGENCY DETECTED**: Please notify the nearest stadium staff member immediately! First Aid is located at **Section 112**.";
+          reply = "⚠️ *(Offline Simulation)* **EMERGENCY ASSISTANCE LOGGED**: Please contact nearby security officers immediately. First Aid is at Section 112.";
         } else {
-          reply = `*(Local Offline Fallback)* **StadiumPilot AI**: I received your query: "${userMsg}". Connect the FastAPI backend to chat with Gemini!`;
+          reply = `*(Offline Simulation)* I received your message: "${userMsg}". Connect the FastAPI backend to interact with Gemini.`;
         }
       }
       setMessages(prev => [...prev, { role: 'assistant', text: reply }]);
-    } catch (err) {
-      setMessages(prev => [...prev, { role: 'assistant', text: 'Error connecting to server. Please ensure the backend is running.' }]);
+    } catch {
+      setMessages(prev => [...prev, { role: 'assistant', text: 'Error connecting to server. Please verify backend is running.' }]);
     } finally {
       setSendingChat(false);
     }
@@ -121,7 +118,6 @@ export default function LandingPage() {
         const newIncident = await api.postEmergencyReport(formData);
         setEmergencies(prev => [newIncident, ...prev]);
       } else {
-        // Offline Mock
         await new Promise(resolve => setTimeout(resolve, 600));
         const newIncident = {
           id: `incident-mock-${Math.floor(Math.random() * 1000)}`,
@@ -144,7 +140,6 @@ export default function LandingPage() {
     }
   };
 
-  // Refresh crowd status from API
   const handleRefreshCrowd = async () => {
     setRefreshingCrowd(true);
     try {
@@ -152,7 +147,6 @@ export default function LandingPage() {
         const crowdData = await api.getCrowdStatus();
         setCheckpoints(crowdData.checkpoints || []);
       } else {
-        // Simulate refresh
         await new Promise(resolve => setTimeout(resolve, 500));
       }
     } catch (err) {
@@ -163,129 +157,119 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen text-slate-100 flex flex-col">
+    <div className="min-h-screen text-slate-800 flex flex-col bg-[#F8F9FA]">
       
-      {/* Backend Status indicator */}
-      <div className="bg-slate-950 py-1.5 px-6 border-b border-white/5 flex items-center justify-between text-xs">
+      {/* Backend Status banner */}
+      <div className="bg-white py-2.5 px-6 border-b border-gray-200 flex items-center justify-between text-xs font-medium">
         <div className="flex items-center gap-2">
-          <span className={`w-2.5 h-2.5 rounded-full ${backendHealthy ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500 animate-pulse'}`}></span>
+          <span className={`w-2 h-2 rounded-full ${backendHealthy ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
           {backendHealthy ? (
-            <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-semibold tracking-wide">
+            <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
               Backend Connected
             </span>
           ) : (
-            <span className="px-2.5 py-0.5 rounded-md bg-rose-500/15 text-rose-400 border border-rose-500/30 font-semibold tracking-wide">
+            <span className="px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">
               Backend Offline
             </span>
           )}
         </div>
-        <div className="text-slate-500 font-semibold tracking-wider uppercase hidden sm:block">
+        <div className="text-slate-400 font-bold uppercase tracking-wider hidden sm:block text-[10px]">
           FIFA World Cup 2026 Sandbox
         </div>
       </div>
 
-      {/* Hero Section */}
-      <section className="relative pt-20 pb-24 px-6 text-center overflow-hidden">
-        {/* Decorative Gradients */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-emerald-500/10 blur-[100px] pointer-events-none"></div>
-        <div className="absolute top-1/3 left-1/3 w-[300px] h-[300px] rounded-full bg-amber-500/5 blur-[80px] pointer-events-none"></div>
-
-        <div className="max-w-4xl mx-auto relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-panel-light text-xs font-semibold text-brand-primary mb-6">
-            <Sparkles className="w-3.5 h-3.5" /> Next-Gen Tournament Operations
+      {/* Hero Section - Pure white bg, clean layout */}
+      <section className="relative bg-white pt-20 pb-20 px-6 text-center border-b border-gray-200">
+        <div className="max-w-4xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-xs font-bold text-brand-primary mb-6 border border-blue-100">
+            <Sparkles className="w-3.5 h-3.5" /> Google Gemini & Command Telemetry
           </div>
           
-          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
-            StadiumPilot AI
-            <span className="block mt-2 text-2xl sm:text-4xl font-bold bg-gradient-to-r from-brand-primary via-emerald-400 to-brand-secondary bg-clip-text text-transparent">
+          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900 mb-6 leading-tight">
+            StadiaFlow AI
+            <span className="block mt-2 text-xl sm:text-3xl font-bold text-slate-500">
               Smart Stadium Assistant for FIFA World Cup 2026
             </span>
           </h1>
 
-          <p className="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed mb-8">
-            An advanced modular orchestration platform designed to streamline fan directions, monitor live gate queues, and coordinate safety dispatches with state-of-the-art AI.
+          <p className="text-base text-slate-500 max-w-xl mx-auto leading-relaxed mb-8">
+            An operations dashboard and spectator assistance platform designed to resolve entrance bottlenecks, answer fan questions, and streamline safety tickets.
           </p>
 
           <div className="flex flex-wrap justify-center gap-4">
-            <a 
-              href="#ai-playground" 
-              className="px-6 py-3.5 rounded-xl font-bold bg-brand-primary hover:bg-emerald-400 text-slate-950 transition-all shadow-lg hover:shadow-emerald-500/20 flex items-center gap-2 group"
+            <Link 
+              to="/chat" 
+              className="px-5 py-3 rounded-lg font-bold bg-brand-primary hover:bg-blue-600 text-white transition-all shadow-sm flex items-center gap-2 text-xs"
             >
-              Interactive AI Assistant <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </a>
-            <a 
-              href="#crowd-telemetry" 
-              className="px-6 py-3.5 rounded-xl font-bold glass-panel hover:bg-slate-800 text-white transition-colors"
+              Interactive AI Assistant <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link 
+              to="/dashboard" 
+              className="px-5 py-3 rounded-lg font-bold bg-[#F1F3F4] hover:bg-slate-200 text-slate-700 transition-colors text-xs"
             >
-              Live Crowd Telemetry
-            </a>
-            <a 
-              href="#emergency-dispatcher" 
-              className="px-6 py-3.5 rounded-xl font-bold bg-amber-500/10 hover:bg-amber-500/20 text-brand-secondary border border-amber-500/20 transition-colors"
-            >
-              Safety Dispatch Desk
-            </a>
+              Operations Console
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-6 w-full space-y-24 flex-1">
+      {/* Main Body */}
+      <main className="max-w-7xl mx-auto px-6 py-16 w-full space-y-20 flex-1">
         
-        {/* Core Capabilities Grid */}
-        <section id="features" className="space-y-8 scroll-mt-20">
-          <div className="text-center max-w-xl mx-auto space-y-3">
-            <h2 className="text-3xl font-extrabold text-white">System Architecture Overview</h2>
-            <p className="text-sm text-slate-400">
-              Three modular pipelines structured to improve venue flows and ensure crowd security.
+        {/* Core Capabilities */}
+        <section id="features" className="space-y-10 scroll-mt-20">
+          <div className="text-center max-w-xl mx-auto space-y-2">
+            <h2 className="text-2xl font-bold text-slate-900">Platform Features</h2>
+            <p className="text-xs text-slate-500">
+              Three interconnected subsystems built to orchestrate and safeguard visitors.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
-            <div className="glass-card p-6 rounded-2xl flex flex-col justify-between">
+            <div className="material-card p-6 flex flex-col justify-between">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400">
-                  <MessageSquare className="w-6 h-6" />
+                <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-brand-primary border border-blue-100">
+                  <MessageSquare className="w-5 h-5" />
                 </div>
-                <h3 className="text-xl font-bold text-white">1. Contextual AI Assistant</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">
-                  Dual-tier architecture reading static stadium directories from local data storage and feeding queries through customized Gemini system prompts for natural guidance.
+                <h3 className="text-base font-bold text-slate-800">1. AI Assistant</h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Natural language assistance reading venue directories dynamically. Falls back to token matching similarity queries when Gemini API keys are unconfigured.
                 </p>
               </div>
-              <a href="#ai-playground" className="text-sm font-semibold text-blue-400 flex items-center gap-1 mt-6 hover:underline">
-                Open AI Play Sandbox &rarr;
-              </a>
+              <Link to="/chat" className="text-xs font-bold text-brand-primary flex items-center gap-1 mt-6 hover:underline">
+                Ask Questions &rarr;
+              </Link>
             </div>
 
-            <div className="glass-card p-6 rounded-2xl flex flex-col justify-between">
+            <div className="material-card p-6 flex flex-col justify-between">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
-                  <Users className="w-6 h-6" />
+                <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-brand-secondary border border-emerald-100">
+                  <Users className="w-5 h-5" />
                 </div>
-                <h3 className="text-xl font-bold text-white">2. Crowd Traffic Control</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">
-                  Real-time telemetry tracking flow rates, wait times, and checkpoint capacities. Generates automatic redirect flags to distribute traffic evenly across stadium gates.
+                <h3 className="text-base font-bold text-slate-800">2. Live Telemetry</h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Real-time visitor flow rates, gate wait times, and crowd density indicators dynamically synced to the central command dashboard.
                 </p>
               </div>
-              <a href="#crowd-telemetry" className="text-sm font-semibold text-emerald-400 flex items-center gap-1 mt-6 hover:underline">
-                View Gate Monitors &rarr;
-              </a>
+              <Link to="/dashboard" className="text-xs font-bold text-brand-secondary flex items-center gap-1 mt-6 hover:underline">
+                View Live Command &rarr;
+              </Link>
             </div>
 
-            <div className="glass-card p-6 rounded-2xl flex flex-col justify-between">
+            <div className="material-card p-6 flex flex-col justify-between">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400">
-                  <ShieldAlert className="w-6 h-6" />
+                <div className="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center text-rose-600 border border-red-100">
+                  <ShieldAlert className="w-5 h-5" />
                 </div>
-                <h3 className="text-xl font-bold text-white">3. Triage & Dispatch Desk</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">
-                  Live report collection portal. Classifies severity (High, Medium, Low) and suggests appropriate responder units (medical, security, janitorial) for immediate resolution.
+                <h3 className="text-base font-bold text-slate-800">3. Safety Dispatch</h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Incident monitoring, categorization, and paramedic/security triage dispatch center supporting direct supervisor submissions.
                 </p>
               </div>
-              <a href="#emergency-dispatcher" className="text-sm font-semibold text-brand-secondary flex items-center gap-1 mt-6 hover:underline">
-                Access Safety Desk &rarr;
-              </a>
+              <Link to="/dashboard" className="text-xs font-bold text-rose-600 flex items-center gap-1 mt-6 hover:underline">
+                Operations Logs &rarr;
+              </Link>
             </div>
 
           </div>
@@ -293,61 +277,63 @@ export default function LandingPage() {
 
         {/* 1. Live Crowd Telemetry Dashboard Section */}
         <section id="crowd-telemetry" className="scroll-mt-20">
-          <div className="glass-panel p-6 sm:p-8 rounded-3xl glow-primary space-y-6">
+          <div className="material-card p-6 sm:p-8 space-y-6">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
               <div>
-                <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                  <Users className="w-6 h-6 text-brand-primary" /> Live Checkpoint Telemetry
+                <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  <Users className="w-5 h-5 text-brand-secondary" /> Entrance Gate Traffic
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-400">
-                  Simulated live visitor entry queue status for stadium safety team.
+                <p className="text-xs text-slate-500">
+                  Live simulated gate throughput queues (refreshes automatically).
                 </p>
               </div>
               <button 
                 onClick={handleRefreshCrowd}
                 disabled={refreshingCrowd}
-                className="self-start sm:self-auto px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold flex items-center gap-2 border border-white/5 transition-all active:scale-95 disabled:opacity-50"
+                className="self-start sm:self-auto px-3.5 py-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-bold flex items-center gap-1.5 border border-slate-200 transition-all active:scale-98 disabled:opacity-50"
               >
-                <RefreshCw className={`w-3.5 h-3.5 ${refreshingCrowd ? 'animate-spin' : ''}`} />
-                Refresh Data
+                <RefreshCw className={`w-3 h-3 ${refreshingCrowd ? 'animate-spin' : ''}`} />
+                Refresh Telemetry
               </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {checkpoints.map(check => (
-                <div key={check.id} className="p-5 rounded-2xl bg-slate-900/40 border border-white/5 space-y-4">
+                <div key={check.id} className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
                   <div className="flex justify-between items-start">
-                    <span className="text-sm font-bold text-slate-200">{check.name}</span>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                      check.status === 'congested' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                    <span className="text-xs font-bold text-slate-800">{check.name}</span>
+                    <span className={`px-2 py-0.5 rounded text-[8px] font-extrabold uppercase tracking-wide border ${
+                      check.status === 'congested' 
+                        ? 'bg-rose-50 text-rose-700 border-rose-200' 
+                        : 'bg-emerald-50 text-emerald-700 border-emerald-200'
                     }`}>
                       {check.status}
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 pt-2">
+                  <div className="grid grid-cols-2 gap-4 py-1">
                     <div>
-                      <span className="block text-[10px] text-slate-400 uppercase tracking-wider">Est. Wait</span>
-                      <span className="text-xl font-bold text-white flex items-center gap-1 mt-0.5">
-                        <Clock className="w-4 h-4 text-brand-secondary" /> {check.wait_time_minutes} min
+                      <span className="block text-[9px] text-slate-400 uppercase font-semibold">Wait Time</span>
+                      <span className="text-base font-extrabold text-slate-800 flex items-center gap-1 mt-0.5">
+                        <Clock className="w-3.5 h-3.5 text-brand-primary" /> {check.wait_time_minutes}m
                       </span>
                     </div>
                     <div>
-                      <span className="block text-[10px] text-slate-400 uppercase tracking-wider">Flow Rate</span>
-                      <span className="text-xl font-bold text-white mt-0.5 block">
-                        {check.flow_rate_per_min} <span className="text-[10px] font-normal text-slate-400">/min</span>
+                      <span className="block text-[9px] text-slate-400 uppercase font-semibold">Flow Rate</span>
+                      <span className="text-base font-extrabold text-slate-800 mt-0.5 block">
+                        {check.flow_rate_per_min} <span className="text-[9px] font-normal text-slate-500">/min</span>
                       </span>
                     </div>
                   </div>
 
-                  <div className="pt-2">
-                    <div className="flex justify-between text-[10px] text-slate-400 mb-1">
-                      <span>Queue Density: {check.density_level}</span>
+                  <div className="pt-1">
+                    <div className="flex justify-between text-[9px] text-slate-500 mb-1 font-semibold">
+                      <span>Density: {check.density_level}</span>
                       <span>{check.current_queue_size} fans</span>
                     </div>
-                    <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                    <div className="h-1.5 rounded-full bg-slate-200 overflow-hidden">
                       <div 
-                        className={`h-full rounded-full transition-all duration-500 ${
+                        className={`h-full rounded-full ${
                           check.density_level === 'high' ? 'bg-rose-500' : check.density_level === 'medium' ? 'bg-amber-500' : 'bg-emerald-500'
                         }`}
                         style={{ width: `${Math.min((check.current_queue_size / 800) * 100, 100)}%` }}
@@ -364,40 +350,27 @@ export default function LandingPage() {
         <section id="ai-playground" className="scroll-mt-20">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            {/* Context Sidebar */}
-            <div className="glass-panel p-6 rounded-3xl space-y-6 flex flex-col justify-between">
+            {/* Sidebar info */}
+            <div className="material-card p-6 space-y-6 flex flex-col justify-between">
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-emerald-400" /> Assistant Context
+                  <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-brand-primary" /> Telemetry Directory Context
                   </h2>
                   <p className="text-xs text-slate-400 mt-1">
-                    Telemetry context currently visible to the Gemini model:
+                    Location catalog context loaded into AI assistant modules:
                   </p>
                 </div>
 
-                <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
-                  <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Active Concessions</div>
-                  {locations.filter(l => l.type === 'concession').map(loc => (
-                    <div key={loc.id} className="p-2.5 rounded-xl bg-slate-900/60 border border-white/5 text-xs flex justify-between">
+                <div className="space-y-2.5 max-h-[300px] overflow-y-auto pr-1">
+                  <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Amenities</div>
+                  {locations.map(loc => (
+                    <div key={loc.id} className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs flex justify-between">
                       <div>
-                        <span className="font-semibold text-slate-200">{loc.name}</span>
-                        <span className="block text-[10px] text-slate-400">{loc.description}</span>
+                        <span className="font-semibold text-slate-800">{loc.name}</span>
+                        <span className="block text-[9px] text-slate-400">{loc.description}</span>
                       </div>
-                      <span className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded self-center text-slate-300">
-                        Sec {loc.section}
-                      </span>
-                    </div>
-                  ))}
-
-                  <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider pt-2">Facilities</div>
-                  {locations.filter(l => l.type === 'first_aid' || l.type === 'restroom').map(loc => (
-                    <div key={loc.id} className="p-2.5 rounded-xl bg-slate-900/60 border border-white/5 text-xs flex justify-between">
-                      <div>
-                        <span className="font-semibold text-slate-200">{loc.name}</span>
-                        <span className="block text-[10px] text-slate-400">{loc.description}</span>
-                      </div>
-                      <span className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded self-center text-slate-300">
+                      <span className="text-[9px] bg-slate-200 px-1.5 py-0.5 rounded self-center text-slate-600 font-semibold">
                         Sec {loc.section}
                       </span>
                     </div>
@@ -405,68 +378,68 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-white/5 text-xs text-slate-400 leading-relaxed">
-                📢 Try asking the AI: 
-                <ul className="list-disc list-inside mt-2 space-y-1 text-slate-300">
-                  <li>"Which gate is fastest to enter?"</li>
-                  <li>"Where can I buy a burger?"</li>
-                  <li>"What should I do in an emergency?"</li>
+              <div className="pt-4 border-t border-slate-100 text-xs text-slate-500 leading-relaxed">
+                Suggested Prompts:
+                <ul className="list-disc list-inside mt-2 space-y-1 text-slate-600">
+                  <li>"Which gate has the shortest wait?"</li>
+                  <li>"Where is Vanguard Burgers?"</li>
+                  <li>"Emergency in Section 104"</li>
                 </ul>
               </div>
             </div>
 
-            {/* Chat Play area */}
-            <div className="lg:col-span-2 glass-panel rounded-3xl glow-secondary flex flex-col h-[480px]">
-              {/* Chat Header */}
-              <div className="p-4 border-b border-white/5 flex items-center justify-between">
+            {/* Chat Play sandbox */}
+            <div className="lg:col-span-2 material-card flex flex-col h-[480px]">
+              {/* Header */}
+              <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-brand-primary">
-                    <MessageSquare className="w-4 h-4" />
+                  <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-brand-primary text-xs font-bold">
+                    AI
                   </div>
                   <div>
-                    <span className="font-bold text-sm text-white">StadiumPilot AI Sandbox</span>
-                    <span className="block text-[10px] text-slate-400">Powered by Gemini AI instructions</span>
+                    <span className="font-bold text-xs text-slate-800">Spectator Assistant Sandbox</span>
+                    <span className="block text-[9px] text-slate-400">Communicating with POST /api/chat</span>
                   </div>
                 </div>
               </div>
 
-              {/* Chat Messages */}
-              <div className="flex-1 p-4 overflow-y-auto space-y-4">
+              {/* Message log */}
+              <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-[#FAF9F6]/30">
                 {messages.map((msg, i) => (
                   <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-xs leading-relaxed ${
+                    <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-xs leading-relaxed ${
                       msg.role === 'user' 
-                        ? 'bg-brand-primary text-slate-950 font-medium rounded-tr-none' 
-                        : 'bg-slate-900/80 border border-white/5 text-slate-200 rounded-tl-none whitespace-pre-line'
+                        ? 'bg-brand-primary text-white font-medium rounded-tr-none shadow-sm' 
+                        : 'bg-white border border-slate-200 text-slate-700 rounded-tl-none shadow-sm'
                     }`}>
-                      {msg.text}
+                      {msg.text ? msg.text.replace(/\*\*/g, '').replace(/\*/g, '') : ''}
                     </div>
                   </div>
                 ))}
                 {sendingChat && (
                   <div className="flex justify-start">
-                    <div className="bg-slate-900/80 border border-white/5 text-slate-400 rounded-2xl rounded-tl-none px-4 py-3 text-xs flex items-center gap-2">
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin text-brand-primary" /> Thinking...
+                    <div className="bg-slate-50 border border-slate-200 text-slate-400 rounded-2xl rounded-tl-none px-4 py-2.5 text-xs flex items-center gap-1.5">
+                      <RefreshCw className="w-3 h-3 animate-spin text-brand-primary" /> Querying...
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Chat Form */}
-              <form onSubmit={handleSendMessage} className="p-4 border-t border-white/5 flex gap-2">
+              {/* Chat Input */}
+              <form onSubmit={handleSendMessage} className="p-4 border-t border-slate-200 flex gap-2">
                 <input 
                   type="text" 
                   value={userInput}
                   onChange={(e) => setUserInput(e.target.value)}
                   placeholder="Ask a question about the stadium..."
-                  className="flex-1 bg-slate-950/80 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-primary/40 transition-colors"
+                  className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-primary focus:bg-white transition-colors"
                 />
                 <button 
                   type="submit"
                   disabled={sendingChat || !userInput.trim()}
-                  className="w-10 h-10 rounded-xl bg-brand-primary hover:bg-emerald-400 text-slate-950 flex items-center justify-center transition-colors active:scale-95 disabled:opacity-40"
+                  className="w-9 h-9 rounded-lg bg-brand-primary hover:bg-blue-600 text-white flex items-center justify-center transition-colors active:scale-95 disabled:opacity-40"
                 >
-                  <Send className="w-4 h-4" />
+                  <Send className="w-3.5 h-3.5" />
                 </button>
               </form>
             </div>
@@ -474,49 +447,49 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* 3. Safety Dispatch desk Section */}
+        {/* 3. Safety Dispatch command section */}
         <section id="emergency-dispatcher" className="scroll-mt-20">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            {/* Live Incidents Log */}
-            <div className="lg:col-span-2 glass-panel p-6 rounded-3xl space-y-6 flex flex-col justify-between">
+            {/* Active alerts log */}
+            <div className="lg:col-span-2 material-card p-6 space-y-6 flex flex-col justify-between">
               <div className="space-y-4">
                 <div>
-                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                    <ShieldAlert className="w-5 h-5 text-amber-500" /> Active Emergency Dispatch
+                  <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <ShieldAlert className="w-5 h-5 text-rose-500" /> Active Incident Dispatch Monitor
                   </h2>
-                  <p className="text-xs text-slate-400">
-                    Incidents reported by fans and staff in real-time.
+                  <p className="text-xs text-slate-500">
+                    Live tickets logged by venue personnel.
                   </p>
                 </div>
 
                 <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
                   {emergencies.length === 0 ? (
-                    <div className="text-center py-8 text-xs text-slate-500">No active incidents reported.</div>
+                    <div className="text-center py-6 text-xs text-slate-400">No active incidents. Command secure.</div>
                   ) : (
                     emergencies.map(inc => (
-                      <div key={inc.id} className="p-4 rounded-xl bg-slate-900/60 border border-white/5 space-y-2">
+                      <div key={inc.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
                         <div className="flex justify-between items-center text-xs">
-                          <span className="font-bold text-slate-200 flex items-center gap-1.5">
+                          <span className="font-bold text-slate-800 flex items-center gap-1.5 uppercase text-[10px] tracking-wide">
                             {inc.severity === 'high' ? (
-                              <AlertCircle className="w-4 h-4 text-rose-500" />
+                              <AlertCircle className="w-4 h-4 text-rose-600" />
                             ) : (
                               <AlertTriangle className="w-4 h-4 text-amber-500" />
                             )}
-                            {inc.type.replace('_', ' ').toUpperCase()}
+                            {inc.type.replace('_', ' ')}
                           </span>
-                          <span className={`px-2 py-0.5 rounded-[4px] text-[10px] font-bold uppercase ${
+                          <span className={`px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider border ${
                             inc.status === 'resolved' 
-                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/15'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                               : inc.status === 'dispatched'
-                              ? 'bg-blue-500/10 text-blue-400 border border-blue-500/15'
-                              : 'bg-amber-500/10 text-amber-400 border border-amber-500/15'
+                              ? 'bg-blue-50 text-blue-700 border-blue-200'
+                              : 'bg-amber-50 text-amber-700 border-amber-200'
                           }`}>
                             {inc.status}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-300">{inc.description}</p>
-                        <div className="flex justify-between text-[10px] text-slate-500">
+                        <p className="text-xs text-slate-600">{inc.description}</p>
+                        <div className="flex justify-between text-[9px] text-slate-400 font-semibold uppercase">
                           <span>📍 Location: {inc.location}</span>
                           <span>Time: {new Date(inc.reported_at).toLocaleTimeString()}</span>
                         </div>
@@ -526,49 +499,49 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs text-slate-500">
-                <span>Simulation utilizes crowd_status.json and emergency_reports.json</span>
-                <span className="font-bold text-slate-400">Security Command Center</span>
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 font-semibold uppercase">
+                <span>Simulation utilizing emergency_reports.json</span>
+                <span>Security Operations</span>
               </div>
             </div>
 
             {/* Submit Incident Form */}
-            <div className="glass-panel p-6 rounded-3xl space-y-6">
+            <div className="material-card p-6 space-y-6">
               <div>
-                <h3 className="text-lg font-bold text-white">Report New Incident</h3>
-                <p className="text-xs text-slate-400 mt-1">
-                  Report issues to dispatch immediately. Mock updates stadium JSON logs.
+                <h3 className="text-base font-bold text-slate-900">File Dispatch Ticket</h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Report a safety issue to dispatcher logs.
                 </p>
               </div>
 
               <form onSubmit={handleEmergencySubmit} className="space-y-4">
                 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Issue Type</label>
+                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Incident Type</label>
                   <select 
                     value={formData.type}
                     onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
-                    className="w-full bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-primary"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-brand-primary"
                   >
-                    <option value="medical">Medical emergency</option>
-                    <option value="spill_hazard">Liquid spill / Slip hazard</option>
-                    <option value="crowd_disorder">Altercation / Crowd disturbance</option>
-                    <option value="maintenance">Facilities issue / Damage</option>
+                    <option value="medical">Medical incident</option>
+                    <option value="spill_hazard">Spill hazard / Slipping risk</option>
+                    <option value="crowd_disorder">Crowd disturbance / Altercation</option>
+                    <option value="maintenance">Facility damage / Broken infrastructure</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Severity</label>
+                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Severity</label>
                   <div className="grid grid-cols-3 gap-2">
                     {['low', 'medium', 'high'].map(sev => (
                       <button
                         key={sev}
                         type="button"
                         onClick={() => setFormData(prev => ({ ...prev, severity: sev }))}
-                        className={`py-2 rounded-xl text-xs font-semibold capitalize border transition-all ${
+                        className={`py-2 rounded-lg text-xs font-semibold capitalize border transition-all ${
                           formData.severity === sev 
-                            ? 'bg-white/10 text-white border-brand-primary/50' 
-                            : 'bg-transparent text-slate-400 border-white/5 hover:border-white/10'
+                            ? 'bg-slate-100 text-slate-800 border-slate-300 font-bold' 
+                            : 'bg-white text-slate-400 border-slate-200 hover:border-slate-300'
                         }`}
                       >
                         {sev}
@@ -578,43 +551,43 @@ export default function LandingPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Location</label>
+                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Incident Location</label>
                   <input 
                     type="text" 
                     required
                     value={formData.location}
                     onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
                     placeholder="e.g. Section 108, Row 5"
-                    className="w-full bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-primary placeholder-slate-650"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-brand-primary placeholder-slate-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Incident Description</label>
+                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Description</label>
                   <textarea 
                     required
                     rows="3"
                     value={formData.description}
                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                     placeholder="Describe what occurred clearly..."
-                    className="w-full bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-primary placeholder-slate-650 resize-none"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-brand-primary placeholder-slate-400 resize-none"
                   ></textarea>
                 </div>
 
                 {emergencySuccess && (
-                  <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2">
+                  <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs flex items-center gap-1.5 font-semibold">
                     <CheckCircle className="w-4 h-4 flex-shrink-0" />
-                    Incident logged and dispatched!
+                    Incident dispatched successfully!
                   </div>
                 )}
 
                 <button
                   type="submit"
                   disabled={submittingEmergency}
-                  className="w-full py-3 rounded-xl font-bold bg-rose-600 hover:bg-rose-500 text-white text-xs transition-colors flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
+                  className="w-full py-3 rounded-lg font-bold bg-rose-600 hover:bg-rose-500 text-white text-xs transition-colors flex items-center justify-center gap-2 active:scale-98 disabled:opacity-50 shadow-sm"
                 >
                   <ShieldAlert className="w-4 h-4" />
-                  {submittingEmergency ? 'Filing Report...' : 'File Dispatch Ticket'}
+                  {submittingEmergency ? 'Logging ticket...' : 'Submit Incident Report'}
                 </button>
 
               </form>
