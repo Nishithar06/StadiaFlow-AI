@@ -43,20 +43,20 @@ export const api = {
 
   // AI Assistant Chat (V1 legacy)
   postChatMessage: (message, sessionId = 'web-session') => 
-    apiClient.post('/gemini/chat', { message, session_id: sessionId }),
+    axios.post(`${BASE_ORIGIN}/api/v1/gemini/chat`, { message, session_id: sessionId }).then(res => res.data),
 
   // Stadium static locations
-  getLocations: () => apiClient.get('/stadium/locations'),
+  getLocations: () => axios.get(`${BASE_ORIGIN}/api/v1/stadium/locations`).then(res => res.data),
 
   // Live crowd telemetries
-  getCrowdStatus: () => apiClient.get('/crowd/status'),
+  getCrowdStatus: () => axios.get(`${BASE_ORIGIN}/api/v1/crowd/status`).then(res => res.data),
 
   // Incident log retrieval
-  getEmergencyReports: () => apiClient.get('/emergency/reports'),
+  getEmergencyReports: () => axios.get(`${BASE_ORIGIN}/api/v1/emergency/reports`).then(res => res.data),
 
   // Incident report submission
   postEmergencyReport: (incidentData) => 
-    apiClient.post('/emergency/reports', incidentData),
+    axios.post(`${BASE_ORIGIN}/api/v1/emergency/reports`, incidentData).then(res => res.data),
 };
 
 export default apiClient;

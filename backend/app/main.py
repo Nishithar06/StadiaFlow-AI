@@ -35,6 +35,14 @@ def api_health():
     }
 
 
+@app.get("/api/health/debug")
+def api_health_debug():
+    return {
+        "allowed_origins_raw": settings.ALLOWED_ORIGINS,
+        "cors_origins_parsed": settings.cors_origins
+    }
+
+
 @app.get("/")
 def read_root():
     return {
