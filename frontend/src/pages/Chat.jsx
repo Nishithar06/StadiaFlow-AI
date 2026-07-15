@@ -300,6 +300,8 @@ export default function Chat() {
 
             <form onSubmit={handleFormSubmit} className="flex gap-2">
               <input
+                id="assistant-chat-input"
+                aria-label="Assistant Chat Message Input"
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -309,6 +311,7 @@ export default function Chat() {
               />
               <button
                 type="submit"
+                aria-label="Send message to assistant"
                 disabled={loading || !input.trim()}
                 className="px-4 rounded-lg bg-brand-primary hover:bg-blue-600 text-white flex items-center justify-center font-bold text-xs gap-1.5 transition-all active:scale-98 disabled:opacity-40 shadow-sm"
               >

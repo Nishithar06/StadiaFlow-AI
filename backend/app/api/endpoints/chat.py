@@ -15,26 +15,10 @@ router = APIRouter()
 
 def load_stadium_data() -> list:
     """
-    Helper to read mock stadium locations from JSON.
+    Helper to read mock stadium locations from cache.
     """
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    for _ in range(5):
-        if os.path.exists(os.path.join(current_dir, "data")):
-            break
-        current_dir = os.path.dirname(current_dir)
-        
-    file_path = os.path.join(current_dir, "data", "stadium_locations.json")
-    
-    if not os.path.exists(file_path):
-        logger.error(f"Stadium data file not found at {file_path}")
-        return []
-        
-    try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception as e:
-        logger.error(f"Error reading stadium JSON file: {e}")
-        return []
+    from app.utils.data_cache import get_stadium_locations_cached
+    return get_stadium_locations_cached()
 
 
 def load_system_instruction() -> str:

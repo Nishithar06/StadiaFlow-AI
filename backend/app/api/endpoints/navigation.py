@@ -43,17 +43,9 @@ def get_navigation_map():
     Retrieves all stadium directory locations, including gates, concessions, restrooms, first aid,
     along with dynamic layers for parking decks and accessibility assistance zones.
     """
-    file_path = get_data_file_path("stadium_locations.json")
-    if not os.path.exists(file_path):
-        logger.error(f"Stadium locations data file not found at {file_path}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to find stadium directories database."
-        )
-
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            raw_locations = json.load(f)
+        from app.utils.data_cache import get_stadium_locations_cached
+        raw_locations = get_stadium_locations_cached()
             
         locations = []
         

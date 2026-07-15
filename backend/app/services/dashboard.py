@@ -43,7 +43,8 @@ class DashboardService:
     async def get_aggregated_dashboard(self) -> DashboardResponse:
         # 1. Load telemetry files
         crowd_data = self.load_json_file("crowd_status.json") or {"checkpoints": []}
-        locations_data = self.load_json_file("stadium_locations.json") or []
+        from app.utils.data_cache import get_stadium_locations_cached
+        locations_data = get_stadium_locations_cached()
         emergency_data = self.load_json_file("emergency_reports.json") or []
 
         # Map locations to quickly find metadata if needed

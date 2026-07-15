@@ -18,6 +18,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def add_security_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
+
 # Include endpoint routers
 app.include_router(gemini.router, prefix="/api/v1/gemini", tags=["Gemini AI Assistant"])
 app.include_router(stadium.router, prefix="/api/v1", tags=["Stadium & Crowd Live Data"])
@@ -34,13 +43,6 @@ def api_health():
         "version": "1.0"
     }
 
-
-@app.get("/api/health/debug")
-def api_health_debug():
-    return {
-        "allowed_origins_raw": settings.ALLOWED_ORIGINS,
-        "cors_origins_parsed": settings.cors_origins
-    }
 
 
 @app.get("/")

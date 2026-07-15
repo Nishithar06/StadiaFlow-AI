@@ -2,7 +2,7 @@ import os
 import json
 from typing import List, Dict, Any
 from fastapi import APIRouter, HTTPException, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 router = APIRouter()
 
@@ -52,10 +52,10 @@ class IncidentReport(BaseModel):
 
 
 class IncidentCreate(BaseModel):
-    type: str
-    severity: str
-    location: str
-    description: str
+    type: str = Field(..., min_length=2, max_length=50, description="Type of incident (medical, security, etc.)")
+    severity: str = Field(..., pattern="^(high|medium|low)$", description="Severity category (high, medium, low)")
+    location: str = Field(..., min_length=2, max_length=100, description="Seating section or concourse zone")
+    description: str = Field(..., min_length=5, max_length=1000, description="Full description of the incident")
 
 
 @router.get("/stadium/locations", response_model=List[Location])
@@ -63,11 +63,9 @@ def get_stadium_locations():
     """
     Get all simulated locations, gates, restrooms, and concessions.
     """
-    file_path = get_data_file_path("stadium_locations.json")
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            return data
+        from app.utils.data_cache import get_stadium_locations_cached
+        return get_stadium_locations_cached()
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

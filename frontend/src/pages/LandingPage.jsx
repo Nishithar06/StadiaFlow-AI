@@ -428,6 +428,8 @@ export default function LandingPage() {
               {/* Chat Input */}
               <form onSubmit={handleSendMessage} className="p-4 border-t border-slate-200 flex gap-2">
                 <input 
+                  id="sandbox-chat-input"
+                  aria-label="Sandbox Chat Input Query"
                   type="text" 
                   value={userInput}
                   onChange={(e) => setUserInput(e.target.value)}
@@ -436,6 +438,7 @@ export default function LandingPage() {
                 />
                 <button 
                   type="submit"
+                  aria-label="Send query to assistant"
                   disabled={sendingChat || !userInput.trim()}
                   className="w-9 h-9 rounded-lg bg-brand-primary hover:bg-blue-600 text-white flex items-center justify-center transition-colors active:scale-95 disabled:opacity-40"
                 >
@@ -551,8 +554,9 @@ export default function LandingPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Incident Location</label>
+                  <label htmlFor="incident-location" className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Incident Location</label>
                   <input 
+                    id="incident-location"
                     type="text" 
                     required
                     value={formData.location}
@@ -563,8 +567,9 @@ export default function LandingPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Description</label>
+                  <label htmlFor="incident-description" className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Description</label>
                   <textarea 
+                    id="incident-description"
                     required
                     rows="3"
                     value={formData.description}

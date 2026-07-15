@@ -150,6 +150,8 @@ export default function Navigation() {
           <div className="relative max-w-xl">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
             <input 
+              id="navigation-search-input"
+              aria-label="Search stadium directory waypoints"
               type="text" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -197,7 +199,7 @@ export default function Navigation() {
 
             {/* Circular Stadium SVG Diagram */}
             <div className="w-full max-w-[380px] aspect-square relative">
-              <svg viewBox="0 0 400 400" className="w-full h-full">
+              <svg role="img" aria-label="Interactive Stadium Map Layout" viewBox="0 0 400 400" className="w-full h-full">
                 {/* External Parking boundaries */}
                 <circle cx="200" cy="200" r="160" fill="none" stroke="#E2E8F0" strokeWidth="2" strokeDasharray="5 5" />
                 
@@ -244,7 +246,11 @@ export default function Navigation() {
                     <g 
                       key={loc.id} 
                       onClick={() => setSelectedLoc(loc)}
-                      className="cursor-pointer group"
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setSelectedLoc(loc); } }}
+                      tabIndex="0"
+                      role="button"
+                      aria-label={`${loc.name} - ${loc.type} in Section ${loc.section}`}
+                      className="cursor-pointer group focus:outline-none focus:ring-2 focus:ring-brand-primary"
                     >
                       {/* Highlight Outer ring */}
                       <circle 
