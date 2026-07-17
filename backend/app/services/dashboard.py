@@ -2,7 +2,7 @@ import os
 import json
 import logging
 from datetime import datetime, timezone
-from typing import List, Dict, Any, Tuple
+from typing import Any
 
 from app.models.dashboard import (
     DashboardResponse, CrowdMetrics, GateMetric,
@@ -218,14 +218,14 @@ class DashboardService:
                 logger.error(f"Error compiling Gemini operational insight: {e}")
                 # Fall back to simulation if API execution fails
 
-        # Intelligent Simulation fallback based on JSON state
+        # Intelligent Simulation fallback based on JSON state (clean plain text alerts)
         insights = []
 
         # Emergency check
         if emergency.total_active_incidents > 0:
             active_list = [f"{e.type} at {e.location}" for e in emergency.recent_reports[:2]]
             insights.append(
-                f"🚨 **Incident Triage Active**: {emergency.total_active_incidents} unresolved alerts "
+                f"🚨 Incident Triage Active: {emergency.total_active_incidents} unresolved alerts "
                 f"({', '.join(active_list)}). Dispatching first responders. Ensure gate corridors remain clear for EMS."
             )
 
@@ -233,20 +233,20 @@ class DashboardService:
         congested_gates = [g.name for g in crowd.gates if g.status == "congested"]
         if congested_gates:
             insights.append(
-                f"🚦 **Gate Bottlenecks Detected**: Congestion at {', '.join(congested_gates)}. "
+                f"🚦 Gate Bottlenecks Detected: Congestion at {', '.join(congested_gates)}. "
                 f"Recommend broadcasting push notifications to transit arrivals to divert flow to Gate C (South Entrance), "
                 f"which is currently clear (4-minute wait time)."
             )
         else:
             insights.append(
-                "🟢 **Entry Gate Flow**: All entrance checkpoints are loading within nominal limits (average wait time < 8 min)."
+                "🟢 Entry Gate Flow: All entrance checkpoints are loading within nominal limits (average wait time < 8 min)."
             )
 
         # Food wait times check
         high_wait_concessions = [c.name for c in concessions.concessions if c.wait_time_minutes > 10]
         if high_wait_concessions:
             insights.append(
-                f"🍔 **Concession Queue Peak**: Elevated queue wait times detected at {', '.join(high_wait_concessions)}. "
+                f"🍔 Concession Queue Peak: Elevated queue wait times detected at {', '.join(high_wait_concessions)}. "
                 f"Recommend activating mobile pre-ordering campaigns to Sections 108 and 112 to clear concourse corridors."
             )
 

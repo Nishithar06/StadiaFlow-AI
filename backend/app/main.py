@@ -18,14 +18,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.middleware("http")
 async def add_security_headers(request, call_next):
+    """
+    HTTP Middleware to append security headers (clickjacking and sniffing defenses).
+    """
     response = await call_next(request)
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     return response
+
 
 # Include endpoint routers
 app.include_router(gemini.router, prefix="/api/v1/gemini", tags=["Gemini AI Assistant"])
@@ -37,6 +42,9 @@ app.include_router(navigation.router, prefix="/api", tags=["Stadium Interactive 
 
 @app.get("/api/health")
 def api_health():
+    """
+    General service health check route. Returns status and version details.
+    """
     return {
         "status": "online",
         "service": "StadiaFlow AI Backend",
@@ -44,9 +52,11 @@ def api_health():
     }
 
 
-
 @app.get("/")
 def read_root():
+    """
+    Default root greeting route pointing to API docs.
+    """
     return {
         "message": "Welcome to StadiaFlow AI API",
         "docs_url": "/docs",
@@ -56,6 +66,9 @@ def read_root():
 
 @app.get("/api/v1/health")
 def health_check():
+    """
+    Telemetry and AI status diagnostic route for system operations.
+    """
     return {
         "status": "healthy",
         "environment": settings.ENVIRONMENT,

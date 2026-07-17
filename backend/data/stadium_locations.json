@@ -24,6 +24,22 @@
     "amenities": ["VIP check-in", "Security Checkpoint"]
   },
   {
+    "id": "gate-4",
+    "name": "Volunteer Operations & Help Center",
+    "type": "gate",
+    "section": "109",
+    "description": "Volunteer dispatch and spectator support services hub.",
+    "amenities": ["Volunteer Info", "Staff Support", "Lost & Found"]
+  },
+  {
+    "id": "gate-5",
+    "name": "Multilingual Spectator Info Desk",
+    "type": "gate",
+    "section": "115",
+    "description": "Official tournament information desk with volunteers fluent in English, Spanish, French, and Portuguese.",
+    "amenities": ["Information Desk", "Multilingual Support", "Spectator Services"]
+  },
+  {
     "id": "concession-1",
     "name": "Vanguard Stadium Burgers",
     "type": "concession",
@@ -38,6 +54,30 @@
     "section": "124",
     "description": "Authentic street tacos, nachos, and soft drinks.",
     "amenities": ["Cash & Card Accepted"]
+  },
+  {
+    "id": "concession-3",
+    "name": "Eco-Green Water Refill Station",
+    "type": "concession",
+    "section": "110",
+    "description": "Free filtered drinking water refill station. Bring your reusable bottle. Zero single-use plastic.",
+    "amenities": ["Filtered Water", "Bottle Refill", "Sustainability"]
+  },
+  {
+    "id": "concession-4",
+    "name": "Concourse Recycling Hub",
+    "type": "concession",
+    "section": "118",
+    "description": "Compostable packaging sorting and waste segregation station.",
+    "amenities": ["Recycling", "Waste Sorting", "Compost Bin"]
+  },
+  {
+    "id": "concession-5",
+    "name": "Zero-Waste Sorting Hub",
+    "type": "concession",
+    "section": "127",
+    "description": "Smart recycling bins for food waste, plastics, paper, and general trash.",
+    "amenities": ["Recycling Bins", "Trash sorting", "Eco-Friendly"]
   },
   {
     "id": "restroom-1",
@@ -62,5 +102,45 @@
     "section": "112",
     "description": "Fully staffed medical bay for emergency care.",
     "amenities": ["Defibrillator", "Triage Room", "Ambulance Bay Access"]
+  },
+  {
+    "id": "parking-1",
+    "name": "North Parking EV Charging Bay",
+    "type": "parking",
+    "section": "101",
+    "description": "Rapid electric vehicle charging stations located in North Lot.",
+    "amenities": ["EV charging", "Level 2 Charger", "Electric Vehicles"]
+  },
+  {
+    "id": "parking-2",
+    "name": "East Transit Shuttle Terminal",
+    "type": "parking",
+    "section": "115",
+    "description": "Tournament shuttle terminal connecting to local metro and transit lines.",
+    "amenities": ["Shuttle Pickup", "Bus Connection", "Public Transit"]
+  },
+  {
+    "id": "parking-3",
+    "name": "South Taxi & Rideshare Deck",
+    "type": "parking",
+    "section": "128",
+    "description": "Designated taxi rank and app-based rideshare staging zone.",
+    "amenities": ["Taxi stand", "Rideshare Pickup", "Uber/Lyft"]
+  },
+  {
+    "id": "parking-4",
+    "name": "West Gate Bicycle Valet",
+    "type": "parking",
+    "section": "102",
+    "description": "Secure monitored bicycle racks and electric scooter parking hub.",
+    "amenities": ["Bicycle parking", "Scooter dock", "Green Transit"]
+  },
+  {
+    "id": "accessibility-1",
+    "name": "Accessibility Services & Assistance Hub",
+    "type": "accessibility",
+    "section": "112",
+    "description": "Wheelchair loaning, sensory room access, and helper escort dispatch center.",
+    "amenities": ["Wheelchair assistance", "Sensory Bags", "Companion Escorts"]
   }
 ]

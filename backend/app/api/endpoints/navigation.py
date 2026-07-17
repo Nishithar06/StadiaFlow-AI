@@ -1,5 +1,3 @@
-import os
-import json
 import logging
 from typing import List
 from fastapi import APIRouter, HTTPException, status
@@ -7,18 +5,6 @@ from app.models.navigation import NavLocation
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-
-
-def get_data_file_path(filename: str) -> str:
-    """
-    Locates the mock telemetry JSONs by scanning parent directories.
-    """
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    for _ in range(5):
-        if os.path.exists(os.path.join(current_dir, "data")):
-            break
-        current_dir = os.path.dirname(current_dir)
-    return os.path.join(current_dir, "data", filename)
 
 
 def get_walking_time_for_section(section: str) -> int:
